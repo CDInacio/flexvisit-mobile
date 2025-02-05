@@ -4,7 +4,7 @@ class BookingService {
   async getBookings() {
     return axios({
       url: Config.API_URL + 'booking/getAll',
-      method: 'GET  ',
+      method: 'GET',
       headers: Config.HEADER_REQUEST,
     })
       .then((response) => {
@@ -17,7 +17,7 @@ class BookingService {
   async getUserBookings() {
     return axios({
       url: Config.API_URL + 'booking/user',
-      method: 'GET  ',
+      method: 'GET',
       headers: Config.HEADER_REQUEST,
     })
       .then((response) => {
@@ -30,7 +30,7 @@ class BookingService {
   async getBooking(id: string) {
     return axios({
       url: Config.API_URL + 'booking/getBookingById/' + id,
-      method: 'GET  ',
+      method: 'GET',
       headers: Config.HEADER_REQUEST,
     })
       .then((response) => {
