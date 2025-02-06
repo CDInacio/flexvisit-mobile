@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Input from '~/components/Input';
-import { Alert, SafeAreaView, Text, View, StyleSheet, ToastAndroid } from 'react-native';
+import { Alert, SafeAreaView, Text, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSignin } from '~/hooks/useSignin';
 import useAuthStore from '~/store/store';
@@ -8,14 +8,7 @@ import { Button } from '~/components/Button';
 
 export default function LoginScreen() {
   const { user } = useAuthStore();
-  // const showToastWithGravity = () => {
-  //   ToastAndroid.showWithGravity(
-  //     'All Your Base Are Belong To Us',
-  //     ToastAndroid.SHORT,
-  //     ToastAndroid.CENTER
-  //   );
-  // };
-  const { mutate: signin } = useSignin();
+  const { mutate: signin, isPending: isLoading } = useSignin();
   const navigation = useNavigation<any>();
   const [form, setForm] = useState({ email: '', password: '' });
 
@@ -74,8 +67,15 @@ export default function LoginScreen() {
           value={form.password}
           onChangeText={(value) => handleInputChange('password', value)}
         />
-        <Button onPress={handleSubmit} className="w-full bg-gray-800">
-          <Text className="text-lg font-bold text-white">Entrar</Text>
+        <Button
+          onPress={handleSubmit}
+          className={`w-full ${isLoading ? 'bg-gray-600' : 'bg-gray-800'}`}
+          disabled={isLoading}>
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text className="text-lg font-bold text-white">Entrar</Text>
+          )}
         </Button>
         <View>
           <Text style={styles.authModeText}>

@@ -5,7 +5,7 @@ class FormService {
   async getForm(id: string) {
     return axios({
       url: Config.API_URL + `form/get/${id}`,
-      method: 'GET  ',
+      method: 'GET',
       headers: Config.HEADER_REQUEST,
     })
       .then((response) => {

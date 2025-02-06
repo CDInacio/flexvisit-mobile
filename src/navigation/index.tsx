@@ -10,8 +10,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ActivityIndicator, View } from 'react-native';
 import QRCodeResult from '~/screens/qrcodeResult';
 import axios from 'axios';
-import Config from '~/utils/api';
-import type { User } from '~/types/user';
 
 export type RootStackParamList = {
   TabNavigator: undefined;
@@ -69,7 +67,9 @@ export default function RootStack() {
 
   if (isLoading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View
+        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        className="bg-red-400">
         <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );

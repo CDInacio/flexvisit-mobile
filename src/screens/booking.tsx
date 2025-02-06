@@ -12,6 +12,9 @@ import { showToast } from '~/utils/toast';
 import type { RootStackParamList } from '~/navigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Image } from 'react-native';
+import { is } from 'date-fns/locale';
+import { Loader2 } from 'lucide-react-native';
+import { ActivityIndicator } from 'react-native';
 
 // Type for route parameters
 type BookingRouteProp = RouteProp<RootStackParamList, 'Agendamento'>;
@@ -20,9 +23,9 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
   const { user } = useAuthStore();
   const bookingId = route.params.id;
   const [formData, setFormData] = useState<{ [key: string]: any }>({});
-  const { data: booking } = useGetBooking(bookingId);
+  const { data: booking, isLoading: isBookingLoading } = useGetBooking(bookingId);
   const formId = booking?.form?.id;
-  const { data: form } = useGetForm(formId!);
+  const { data: form, isLoading: isFormLoading } = useGetForm(formId!);
   const { mutate: updateStatus, isPending: isLoading } = useUpdateBooking();
 
   // Estado para controlar a exibição do modal do QR Code
@@ -77,16 +80,16 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
     );
   };
 
-  if (!booking) {
+  if (isBookingLoading || isFormLoading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Text className="text-lg text-gray-500">Carregando...</Text>
+        <ActivityIndicator size="large" color="#374151" />
       </View>
     );
   }
 
   return (
-    <ScrollView className="mt-4 flex-1 bg-gray-100 px-4">
+    <ScrollView className="my-4 flex-1 bg-gray-100 px-4">
       <View className="rounded-lg bg-gray-800 p-4 shadow-md">
         <Text className="mb-3 text-xl font-bold text-gray-100">{booking?.form?.form_name}</Text>
         <Text className="text-sm text-gray-300">{booking?.form?.form_description}</Text>
@@ -107,7 +110,6 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
         ))}
       </View>
 
-      {/* Informações Adicionais */}
       <View className="mb-4 rounded-lg bg-gray-200 p-4 shadow-md">
         <Text className="mb-2 text-lg font-semibold text-gray-700">Informações adicionais:</Text>
         <Text className="text-gray-600">
@@ -144,7 +146,6 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
         </View>
       </Modal>
 
-      {/* Botões de Ação */}
       {user?.role === 'ADMIN' || user?.role === 'ATTENDANT' ? (
         <View className="mt-4 flex-row justify-around gap-3 space-x-4">
           <TouchableOpacity

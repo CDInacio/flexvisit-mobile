@@ -178,7 +178,7 @@ export default function Profile() {
                 </View>
               ) : (
                 <TouchableOpacity
-                  className="rounded-lg bg-gray-700 px-6 py-3 "
+                  className="rounded-lg bg-gray-800 px-6 py-3 "
                   onPress={() => setIsEditing(true)}>
                   <Text className="text-center text-lg font-bold text-white">Editar</Text>
                 </TouchableOpacity>
