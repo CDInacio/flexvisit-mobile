@@ -209,7 +209,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
             </View>
           </View>
         ) : (
-          <View className=" flex-1   px-5">
+          <View className=" flex-1   px-2">
             <View className="z-50 flex flex-row justify-end gap-2">
               <TouchableWithoutFeedback onPress={closeDropdown}>
                 <View className="flex-1">
@@ -250,13 +250,15 @@ export default function HomeScreen({ route }: HomeScreenProps) {
               </Text>
               <Text className="text-gray-600">{user?.email}</Text>
             </View>
-            <Text className="mb-5 mt-10 text-start text-lg font-semibold">
-              Meus agendamentos ({userBookings?.length})
+            <Text className="mt-10 px-2 py-6 text-start text-lg font-semibold text-slate-600">
+              Meus agendamentos <Text className=" text-slate-500">{userBookings?.length}</Text>
             </Text>
+
             {isLoading ? (
               <ActivityIndicator size="small" color="#0000ff" />
             ) : (
               <ScrollView
+                className="px-1"
                 refreshControl={
                   <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
                 }>
@@ -264,7 +266,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
                   <TouchableOpacity
                     onPress={() => handleGoToDetailsPage(booking.id)}
                     key={index}
-                    className={`mb-4 flex w-full flex-row justify-between rounded-lg bg-white p-4 shadow-md`}>
+                    className={`mb-4 flex w-full flex-row justify-between rounded-lg   bg-white p-4 shadow-md `}>
                     {/* Informações do agendamento */}
                     <View className="flex-1 pr-4">
                       <Text className="mb-3  text-lg font-bold">{booking?.form?.form_name}</Text>

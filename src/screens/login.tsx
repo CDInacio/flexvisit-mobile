@@ -69,7 +69,7 @@ export default function LoginScreen() {
         />
         <Button
           onPress={handleSubmit}
-          className={`w-full ${isLoading ? 'bg-gray-600' : 'bg-gray-800'}`}
+          className={`w-full ${isLoading ? 'bg-gray-600' : 'bg-slate-800'}`}
           disabled={isLoading}>
           {isLoading ? (
             <ActivityIndicator size="small" color="#fff" />
