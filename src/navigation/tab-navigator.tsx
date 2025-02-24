@@ -43,25 +43,29 @@ export default function TabNavigator() {
         options={{
           title: 'Início',
           headerShown: false,
+          tabBarActiveTintColor: '#1f2937',
           tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
         }}
       />
-      {user?.role !== 'USER' && (
-        <Tab.Screen
-          name="QRCode"
-          component={QRCode}
-          options={{
-            title: getTabTitle('QRCode'),
-            headerShown: false,
-            tabBarIcon: ({ color }) => <TabBarIcon name="qrcode" color={color} />,
-          }}
-        />
-      )}
+      {user?.role === 'ATTENDANT' ||
+        (user?.role === 'ADMIN' && (
+          <Tab.Screen
+            name="QRCode"
+            component={QRCode}
+            options={{
+              tabBarActiveTintColor: '#1f2937',
+              title: getTabTitle('QRCode'),
+              headerShown: false,
+              tabBarIcon: ({ color }) => <TabBarIcon name="qrcode" color={color} />,
+            }}
+          />
+        ))}
       {user?.role === 'USER' && (
         <Tab.Screen
           name="Novo agendamento"
           component={NewBooking}
           options={{
+            tabBarActiveTintColor: '#1f2937',
             title: getTabTitle('Novo', user?.role),
             tabBarIcon: ({ color }) => <TabBarIcon name="plus" color={color} />,
           }}
@@ -72,7 +76,8 @@ export default function TabNavigator() {
           name="Agendamentos"
           component={Bookings}
           options={{
-            title: getTabTitle('Agendamentos', user?.role),
+            headerShown: false,
+            tabBarActiveTintColor: '#1f2937',
             tabBarIcon: ({ color }) => <TabBarIcon name="folder" color={color} />,
           }}
         />
@@ -83,6 +88,7 @@ export default function TabNavigator() {
         options={{
           title: getTabTitle('Perfil'),
           headerShown: false,
+          tabBarActiveTintColor: '#1f2937',
           tabBarIcon: ({ color }) => <TabBarIcon name="user" color={color} />,
         }}
       />

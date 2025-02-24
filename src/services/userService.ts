@@ -1,8 +1,7 @@
-import { set } from 'date-fns';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import Config from '~/utils/api';
-import type { User } from '~/types/user';
+import type { UserSignupCredentials } from '~/types/user';
 
 class UserService {
   async login(email: string, password: string) {
@@ -22,6 +21,21 @@ class UserService {
           AsyncStorage.setItem('user', JSON.stringify(response.data.user));
           return Promise.resolve(response.data);
         }
+      })
+      .catch((error) => {
+        throw error;
+      });
+  }
+  async signup(data: UserSignupCredentials) {
+    console.log('Dados enviados para signup:', data); // <-- Debug aqui
+    return axios({
+      url: Config.API_URL + 'user/signup',
+      method: 'POST',
+      data,
+      headers: Config.HEADER_REQUEST,
+    })
+      .then((response) => {
+        return Promise.resolve(response.data);
       })
       .catch((error) => {
         throw error;

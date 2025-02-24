@@ -5,6 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useSignin } from '~/hooks/useSignin';
 import useAuthStore from '~/store/store';
 import { Button } from '~/components/Button';
+import { validateFields } from '~/utils/validateAuthFields';
+import Toast from 'react-native-toast-message';
+import { showToast } from '~/utils/toast';
 
 export default function LoginScreen() {
   const { user } = useAuthStore();
@@ -21,23 +24,32 @@ export default function LoginScreen() {
   const validateForm = () => {
     const { email, password } = form;
 
+    const requiredFields = [
+      { key: 'email', label: 'Email' },
+      { key: 'password', label: 'Senha' },
+    ];
+
+    if (!validateFields(form, requiredFields)) {
+      return;
+    }
+
     if (!email) {
-      Alert.alert('Erro', 'O campo Email é obrigatório.');
+      showToast('error', 'Erro!', 'Por favor, insira um email válido.');
       return false;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      Alert.alert('Erro', 'Por favor, insira um Email válido.');
+      showToast('error', 'Erro!', 'Por favor, insira um email válido.');
       return false;
     }
 
     if (!password) {
-      Alert.alert('Erro', 'O campo Senha é obrigatório.');
+      showToast('error', 'Erro!', 'Por favor, insira uma senha válida.');
       return false;
     }
 
     if (password.length < 6) {
-      Alert.alert('Erro', 'A senha deve ter pelo menos 6 caracteres.');
+      showToast('error', 'Erro!', 'A senha deve ter pelo menos 6 caracteres.');
       return false;
     }
 
@@ -45,7 +57,6 @@ export default function LoginScreen() {
   };
 
   const handleSubmit = () => {
-    console.log('clicou em entrar');
     if (validateForm()) {
       signin(form);
     }
@@ -86,6 +97,7 @@ export default function LoginScreen() {
           </Text>
         </View>
       </View>
+      <Toast />
     </SafeAreaView>
   );
 }

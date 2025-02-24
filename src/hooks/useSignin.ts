@@ -1,9 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
-import { useNotifications } from 'react-native-notificated';
 import { useNavigation } from '@react-navigation/native';
 import useAuthStore from '~/store/store';
 import userService from '~/services/userService';
-import { set } from 'date-fns';
 
 export function useSignin() {
   const { setUserData } = useAuthStore();

@@ -12,6 +12,11 @@ module.exports = {
   presets: [require('nativewind/preset')],
   theme: {
     extend: {
+      fontFamily: {
+        montserrat_regular: ["Montserrat-Regular"],
+        montserrat_medium: ["Montserrat-Medium"],
+        montserrat_bold: ["Montserrat-Bold"],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',

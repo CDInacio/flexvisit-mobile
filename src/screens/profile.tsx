@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,11 +21,13 @@ import { useUpdateUser } from '~/hooks/useUpdateUser';
 import { ScrollView } from 'react-native-gesture-handler';
 import { showToast } from '~/utils/toast';
 import Toast from 'react-native-toast-message';
+import { useQueryClient } from '@tanstack/react-query';
 
-export default function Profile() {
-  const { data: user } = useGetUser();
+export default function Profile({ route }: { route: { name: string } }) {
+  const queryClient = useQueryClient();
+  const { data: user, isLoading } = useGetUser();
   const logout = useLogout();
-  const { mutate: updateUser } = useUpdateUser();
+  const { mutate: updateUser, isPending: isLoadingUpdateUser } = useUpdateUser();
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState({
     fullname: '',
@@ -69,7 +72,6 @@ export default function Profile() {
         },
       }
     );
-    setIsEditing(false);
   };
 
   const handleCancel = () => {
@@ -77,15 +79,26 @@ export default function Profile() {
     setIsEditing(false);
   };
 
+  if (isLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" color="#121212" />
+      </View>
+    );
+  }
+
   return (
     <SafeAreaView className="mt-4 flex-1 px-5">
+      <View className="mt-4 flex items-center">
+        <Text className="font-bold">{route.name}</Text>
+      </View>
       <KeyboardAvoidingView
         behavior="padding"
         style={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : 0}>
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <Pressable onPress={logout} className="items-end justify-end">
+            <Pressable onPress={() => logout(queryClient)} className="items-end justify-end">
               <FontAwesome name="sign-out" size={24} color="black" />
             </Pressable>
             <View className="mt-5 flex flex-row justify-center ">
@@ -169,11 +182,17 @@ export default function Profile() {
               </View>
               {isEditing ? (
                 <View className="flex flex-row gap-4 py-8">
-                  <TouchableOpacity className="rounded bg-green-400 px-6 py-3" onPress={handleSave}>
-                    <Text className="font-bold text-white">Salvar</Text>
+                  <TouchableOpacity className="rounded bg-gray-800 px-6 py-3" onPress={handleSave}>
+                    {isLoadingUpdateUser ? (
+                      <ActivityIndicator size={'small'} color="#ffff" />
+                    ) : (
+                      <Text className="font-bold text-white">Salvar</Text>
+                    )}
                   </TouchableOpacity>
-                  <TouchableOpacity className="rounded bg-red-400 px-6 py-3" onPress={handleCancel}>
-                    <Text className="font-bold text-white">Cancelar</Text>
+                  <TouchableOpacity
+                    className="rounded border-[1.5px] border-gray-800 bg-white px-6 py-3 "
+                    onPress={handleCancel}>
+                    <Text className="font-bold text-gray-800">Cancelar</Text>
                   </TouchableOpacity>
                 </View>
               ) : (

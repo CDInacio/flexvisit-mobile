@@ -36,7 +36,7 @@ function BookingList({
         <TouchableOpacity
           onPress={() => onPress(booking.id)}
           key={index}
-          className={`mb-4 flex flex-row justify-between rounded-lg bg-white p-4 shadow-md`}>
+          className={`mb-4 flex flex-row justify-between rounded-lg border border-gray-300 p-4 `}>
           {/* Informações do agendamento */}
           <View className="flex-1 pr-4">
             <Text className="mb-3 text-lg font-bold">
@@ -63,23 +63,22 @@ function BookingList({
   );
 }
 
-export default function Bookings() {
+export default function Bookings({ route }: { route: { name: string } }) {
   const navigation = useNavigation<BookingNavigationProp>();
   const [filter, setFilter] = useState<string | null>(null);
 
   const { data: allBookings } = useGetBookings();
-  console.log(allBookings);
+
   const handleGoToDetailsPage = (id: string) => {
     navigation.navigate('Agendamento', { id });
   };
 
   return (
     <SafeAreaView className="mt-4 flex-1 ">
-      {/* Header */}
-      <Text className="text-center text-xl font-bold text-gray-800">Agendamentos</Text>
-
-      {/* Dropdown para Filtro */}
-      <View className="m-4">
+      <View className="mt-4 flex items-center">
+        <Text className="font-bold">{route.name}</Text>
+      </View>
+      <View className="">
         <RNPickerSelect
           onValueChange={(value) => setFilter(value)}
           placeholder={{
@@ -117,8 +116,7 @@ export default function Bookings() {
           }}
         />
       </View>
-
-      <ScrollView className="flex-1 px-4 py-6 " contentContainerStyle={{ paddingBottom: 20 }}>
+      <ScrollView className="flex-1 px-4  " contentContainerStyle={{ paddingBottom: 20 }}>
         <BookingList bookings={allBookings} filter={filter} onPress={handleGoToDetailsPage} />
       </ScrollView>
     </SafeAreaView>

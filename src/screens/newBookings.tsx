@@ -37,12 +37,11 @@ interface FormField {
 
 export default function NewBooking() {
   const [formData, setFormData] = useState<Form>({});
-  const { mutate: createBooking, isPending } = useCreateBooking();
-  const { data: form } = useGetForms();
-  const { data: dates } = useGetSchedule();
+  const { mutate: createBooking, isPending: isLoadingCreateBooking } = useCreateBooking();
+  const { data: form, isLoading: isLoadingForms } = useGetForms();
+  const { data: dates, isLoading: isLoadingSchedule } = useGetSchedule();
   const [availableSlots, setAvailableSlots] = useState<Timeslot[]>([]);
   const userForm = form?.find((f: any) => f.isActive === true);
-
   const [date, setDate] = useState<Date | null>(null);
   const [showPicker, setShowPicker] = useState(false);
 
@@ -131,6 +130,14 @@ export default function NewBooking() {
       setAvailableSlots(matchingTimeslots);
     }
   }, [formData.data, dates]);
+
+  if (isLoadingForms || isLoadingSchedule) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <ScrollView className="mb-5 flex-1 px-5">
@@ -309,13 +316,9 @@ export default function NewBooking() {
         })}
 
         <Pressable onPress={handleBooking} style={({ pressed }) => [{ backgroundColor: '' }]}>
-          {isPending ? (
-            <ActivityIndicator size="small" />
-          ) : (
-            <Text className="rounded bg-gray-800 px-5 py-3 text-center text-xl font-bold text-white">
-              Agendar
-            </Text>
-          )}
+          <Text className="rounded bg-gray-800 px-5 py-3 text-center text-xl font-bold text-white">
+            {isLoadingCreateBooking ? <ActivityIndicator size="small" color="#ffff" /> : 'Agendar'}
+          </Text>
         </Pressable>
       </View>
       <Toast />

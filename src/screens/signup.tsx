@@ -1,34 +1,55 @@
 import React, { useState } from 'react';
 import Input from '~/components/Input';
-import { Alert, SafeAreaView, Text, View, StyleSheet } from 'react-native';
+import { Alert, SafeAreaView, Text, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { Button } from '~/components/Button';
 import { useNavigation } from '@react-navigation/native';
+import { useSignup } from '~/hooks/useSignup';
+import { showToast } from '~/utils/toast';
+import Toast from 'react-native-toast-message';
+import { validateFields } from '~/utils/validateAuthFields';
 
 export default function SignupScreen() {
+  const { mutate: singup, isPending: isLoadingSignup } = useSignup();
   const navigation = useNavigation<any>();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    fullname: '',
+    document: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+  });
 
-  // Função para atualizar os campos do formulário
   const handleInputChange = (name: string, value: string) => {
-    setForm({ ...form, [name]: value });
+    setFormData({ ...formData, [name]: value });
   };
 
-  // Função de validação
   const validateForm = () => {
-    const { email, password } = form;
+    const { fullname, document, email, phoneNumber, password } = formData;
 
-    if (!email) {
-      Alert.alert('Erro', 'O campo Email é obrigatório.');
-      return false;
+    const requiredFields = [
+      { key: 'fullname', label: 'Nome completo' },
+      { key: 'document', label: 'Documento' },
+      { key: 'email', label: 'Email' },
+      { key: 'phoneNumber', label: 'Telefone' },
+      { key: 'password', label: 'Senha' },
+    ];
+
+    if (!validateFields(formData, requiredFields)) {
+      return;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      Alert.alert('Erro', 'Por favor, insira um Email válido.');
+      showToast('error', 'Erro!', 'Por favor, insira um email válido.');
+      return false;
+    }
+
+    if (!phoneNumber) {
+      showToast('error', 'Erro!', 'Por favor, insira um número de telefone válido.');
       return false;
     }
 
     if (!password) {
-      Alert.alert('Erro', 'O campo Senha é obrigatório.');
+      showToast('error', 'Erro!', 'Por favor, insira uma senha válida.');
       return false;
     }
 
@@ -42,8 +63,8 @@ export default function SignupScreen() {
 
   const handleSubmit = () => {
     if (validateForm()) {
-      console.log('Formulário enviado com sucesso:', form);
-      Alert.alert('Sucesso', 'Login realizado com sucesso!');
+      console.log(formData);
+      singup(formData);
     }
   };
 
@@ -53,18 +74,37 @@ export default function SignupScreen() {
         <Text style={styles.title}>Cadastro</Text>
         <View style={styles.spacer} />
         <Input
+          placeholder="Nome completo"
+          value={formData.fullname}
+          onChangeText={(value) => handleInputChange('fullname', value)}
+        />
+        <Input
+          placeholder="Documento (CPF/RG)"
+          value={formData.document}
+          onChangeText={(value) => handleInputChange('document', value)}
+        />
+        <Input
           placeholder="Email"
-          value={form.email}
+          value={formData.email}
           onChangeText={(value) => handleInputChange('email', value)}
+        />
+        <Input
+          placeholder="Telefone"
+          value={formData.phoneNumber}
+          onChangeText={(value) => handleInputChange('phoneNumber', value)}
         />
         <Input
           placeholder="Senha"
           secureTextEntry
-          value={form.password}
+          value={formData.password}
           onChangeText={(value) => handleInputChange('password', value)}
         />
         <Button onPress={handleSubmit} className="w-full bg-gray-800">
-          <Text className="text-lg font-bold text-white">Cadastrar</Text>
+          {isLoadingSignup ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text className="text-lg font-bold text-white">Cadastrar</Text>
+          )}
         </Button>
         <View>
           <Text style={styles.authModeText}>
@@ -75,6 +115,7 @@ export default function SignupScreen() {
           </Text>
         </View>
       </View>
+      <Toast />
     </SafeAreaView>
   );
 }

@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
-  Button,
   FlatList,
   Image,
   RefreshControl,
@@ -16,7 +15,6 @@ import { useGetNotifications } from '~/hooks/useGetNotifications';
 import { useGetBookings } from '~/hooks/useGetBookings';
 import { PieChart } from 'react-native-gifted-charts';
 import useAuthStore from '~/store/store';
-import { useLogout } from '~/hooks/useLogout';
 import type { Notification } from '~/types/notification';
 import type { TabParamList } from '~/navigation/tab-navigator';
 import { getFirstNames } from '~/utils/formateName';
@@ -27,10 +25,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from '~/navigation';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { User } from '~/types/user';
 import { ActivityIndicator } from 'react-native-paper';
-import Notifications from '~/components/Notifications';
 
 type HomeScreenProps = BottomTabScreenProps<TabParamList, 'Home'>;
 type BookingNavigationProp = StackNavigationProp<RootStackParamList, 'Agendamento'>;
@@ -38,7 +33,7 @@ type BookingNavigationProp = StackNavigationProp<RootStackParamList, 'Agendament
 export default function HomeScreen({ route }: HomeScreenProps) {
   const { data: userBookings, refetch } = useGetUserBookings();
   const navigation = useNavigation<BookingNavigationProp>();
-  const { user, setUserData } = useAuthStore();
+  const { user } = useAuthStore();
   const { data: bookings, isLoading } = useGetBookings();
   const { data: notifications } = useGetNotifications();
   const unreadNotifications: Notification[] =
@@ -112,19 +107,6 @@ export default function HomeScreen({ route }: HomeScreenProps) {
     },
   ];
 
-  const logout = async () => {
-    // Primeiro, navegue para a tela de Login
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Login' }],
-    });
-
-    // Em seguida, remova os dados de usuário e token
-    await AsyncStorage.removeItem('user');
-    await AsyncStorage.removeItem('userToken');
-    setUserData(null);
-  };
-
   const renderDot = (color: string) => (
     <View className="mr-2 h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
   );
@@ -153,41 +135,44 @@ export default function HomeScreen({ route }: HomeScreenProps) {
     <TouchableWithoutFeedback onPress={closeDropdown}>
       <SafeAreaView className="mt-4 flex-1">
         {user?.role !== 'USER' && (
-          <View className="mt-4 flex-row items-center justify-end  gap-3  px-5">
-            <View className="z-50 flex flex-row items-center justify-end gap-2">
-              <TouchableOpacity>
-                <Image source={{ uri: user?.profileImage }} className="h-8 w-8 rounded-full" />
-              </TouchableOpacity>
-              <View className="flex-row items-center gap-3 px-5">
-                <TouchableOpacity onPress={toggleDropdown}>
-                  <FontAwesome name="bell-o" size={20} color="black" />
-                  {unreadNotifications.length > 0 && (
-                    <View className="absolute -top-1.5 right-0 h-5 w-5 items-center justify-center rounded-full bg-red-600">
-                      <Text className="text-xs font-bold text-white">
-                        {unreadNotifications.length}
-                      </Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
-
-                {dropdownVisible && (
-                  <View className="absolute right-4  top-7  mt-2 w-60 rounded bg-white shadow-lg">
-                    <Text className="px-4 py-2 font-bold text-gray-700">Notificações</Text>
-                    <FlatList
-                      data={unreadNotifications}
-                      keyExtractor={(item) => item.id}
-                      renderItem={renderNotificationItem}
-                      contentContainerStyle={{ padding: 8 }}
-                    />
+          <View className="mt-4 flex-row items-center justify-between  gap-3  px-5">
+            <TouchableOpacity>
+              <Image source={{ uri: user?.profileImage }} className="h-8 w-8 rounded-full" />
+            </TouchableOpacity>
+            <Text className="font-bold">{route.name}</Text>
+            <View className="flex-row items-center gap-3 px-5">
+              <TouchableOpacity onPress={toggleDropdown}>
+                <FontAwesome name="bell-o" size={20} color="black" />
+                {unreadNotifications.length > 0 && (
+                  <View className="absolute -top-1.5 right-0 h-5 w-5 items-center justify-center rounded-full bg-red-600">
+                    <Text className="text-xs font-bold text-white">
+                      {unreadNotifications.length}
+                    </Text>
                   </View>
                 )}
-              </View>
+              </TouchableOpacity>
+
+              {dropdownVisible && (
+                <View className="absolute right-4  top-7  mt-2 w-60 rounded bg-white shadow-lg">
+                  <Text className="px-4 py-2 font-bold text-gray-700">Notificações</Text>
+                  <FlatList
+                    data={unreadNotifications}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderNotificationItem}
+                    contentContainerStyle={{ padding: 8 }}
+                  />
+                </View>
+              )}
             </View>
           </View>
         )}
         {user?.role === 'ADMIN' || user?.role === 'COORDINATOR' || user?.role === 'ATTADANT' ? (
           <View className="mx-4 mt-10">
-            <Text className="mb-3 text-xl font-bold text-slate-900">Agendamentos por Status</Text>
+            <Text
+              style={{ fontFamily: 'Montserrat-Regular' }}
+              className="font-montserrat_medium mb-3 text-xl font-bold text-slate-900">
+              Agendamentos por Status
+            </Text>
             <View className="overflow-hidden break-normal rounded border border-gray-400 p-3">
               <View style={{ padding: 20, alignItems: 'center' }}>
                 <PieChart
@@ -266,7 +251,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
                   <TouchableOpacity
                     onPress={() => handleGoToDetailsPage(booking.id)}
                     key={index}
-                    className={`mb-4 flex w-full flex-row justify-between rounded-lg   bg-white p-4 shadow-md `}>
+                    className={`mb-4 flex w-full flex-row justify-between rounded-lg   border border-gray-300 bg-white p-4`}>
                     {/* Informações do agendamento */}
                     <View className="flex-1 pr-4">
                       <Text className="mb-3  text-lg font-bold">{booking?.form?.form_name}</Text>
