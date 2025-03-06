@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import Config from '~/utils/api';
 class BookingService {
   async getBookings() {
@@ -11,7 +11,20 @@ class BookingService {
         return response.data;
       })
       .catch((error) => {
-        throw error;
+        BookingService.handleError(error);
+      });
+  }
+  async getDataOverview() {
+    return axios({
+      url: Config.API_URL + 'booking/overview',
+      method: 'GET',
+      headers: Config.HEADER_REQUEST,
+    })
+      .then((response) => {
+        return response.data;
+      })
+      .catch((error) => {
+        BookingService.handleError(error);
       });
   }
   async getUserBookings() {
@@ -24,7 +37,7 @@ class BookingService {
         return response.data;
       })
       .catch((error) => {
-        throw error;
+        BookingService.handleError(error);
       });
   }
   async getBooking(id: string) {
@@ -37,7 +50,7 @@ class BookingService {
         return response.data;
       })
       .catch((error) => {
-        throw error;
+        BookingService.handleError(error);
       });
   }
   async createBooking(booking: any) {
@@ -51,7 +64,7 @@ class BookingService {
         return response.data;
       })
       .catch((error) => {
-        throw error;
+        BookingService.handleError(error);
       });
   }
   async updateBookingStatus({
@@ -85,8 +98,15 @@ class BookingService {
         return response.data;
       })
       .catch((error) => {
-        throw error;
+        BookingService.handleError(error);
       });
+  }
+  private static handleError(error: unknown): never {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data.message || 'Erro desconhecido na API');
+    } else {
+      throw new Error('Ocorreu um erro inesperado');
+    }
   }
 }
 

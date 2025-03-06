@@ -3,7 +3,6 @@ import { useNavigation } from '@react-navigation/native';
 import userService from '~/services/userService';
 import type { UserSignupCredentials } from '~/types/user';
 import { showToast } from '~/utils/toast';
-import { set } from 'date-fns';
 
 export function useSignup() {
   const navigation = useNavigation<any>();

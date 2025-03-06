@@ -34,32 +34,21 @@ const getTabTitle = (tabName: string, role?: string): string => {
 
 export default function TabNavigator() {
   const { user } = useAuthStore();
-
+  console.log(user);
   return (
     <Tab.Navigator initialRouteName="Home">
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          title: 'Início',
-          headerShown: false,
-          tabBarActiveTintColor: '#1f2937',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
-        }}
-      />
-      {user?.role === 'ATTENDANT' ||
-        (user?.role === 'ADMIN' && (
-          <Tab.Screen
-            name="QRCode"
-            component={QRCode}
-            options={{
-              tabBarActiveTintColor: '#1f2937',
-              title: getTabTitle('QRCode'),
-              headerShown: false,
-              tabBarIcon: ({ color }) => <TabBarIcon name="qrcode" color={color} />,
-            }}
-          />
-        ))}
+      {user?.role !== 'COORDINATOR' && (
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{
+            title: 'Início',
+            headerShown: false,
+            tabBarActiveTintColor: '#1f2937',
+            tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          }}
+        />
+      )}
       {user?.role === 'USER' && (
         <Tab.Screen
           name="Novo agendamento"
@@ -82,6 +71,19 @@ export default function TabNavigator() {
           }}
         />
       )}
+      {user?.role !== 'USER' &&
+        (user?.role !== 'ATTENDANT' ? (
+          <Tab.Screen
+            name="QRCode"
+            component={QRCode}
+            options={{
+              tabBarActiveTintColor: '#1f2937',
+              title: getTabTitle('QRCode'),
+              headerShown: false,
+              tabBarIcon: ({ color }) => <TabBarIcon name="qrcode" color={color} />,
+            }}
+          />
+        ) : null)}
       <Tab.Screen
         name="Perfil"
         component={Profile}

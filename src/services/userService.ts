@@ -1,5 +1,6 @@
+import { User } from './../types/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import Config from '~/utils/api';
 import type { UserSignupCredentials } from '~/types/user';
 
@@ -17,17 +18,15 @@ class UserService {
       .then((response) => {
         if (response.data.token) {
           AsyncStorage.setItem('userToken', response.data.token);
-          console.log(response.data.token);
           AsyncStorage.setItem('user', JSON.stringify(response.data.user));
           return Promise.resolve(response.data);
         }
       })
       .catch((error) => {
-        throw error;
+        UserService.handleError(error);
       });
   }
   async signup(data: UserSignupCredentials) {
-    console.log('Dados enviados para signup:', data); // <-- Debug aqui
     return axios({
       url: Config.API_URL + 'user/signup',
       method: 'POST',
@@ -38,7 +37,7 @@ class UserService {
         return Promise.resolve(response.data);
       })
       .catch((error) => {
-        throw error;
+        UserService.handleError(error);
       });
   }
   async updateUser({ id, data }: { id: string | undefined; data: unknown }) {
@@ -52,7 +51,7 @@ class UserService {
         return Promise.resolve(response.data);
       })
       .catch((error) => {
-        throw error;
+        UserService.handleError(error);
       });
   }
   async getUserInfo() {
@@ -65,8 +64,15 @@ class UserService {
         return Promise.resolve(response.data);
       })
       .catch((error) => {
-        throw error;
+        UserService.handleError(error);
       });
+  }
+  private static handleError(error: unknown): never {
+    if (isAxiosError(error)) {
+      throw new Error(error.response?.data.message || 'Erro desconhecido na API');
+    } else {
+      throw new Error('Ocorreu um erro inesperado');
+    }
   }
 }
 const userService = new UserService();

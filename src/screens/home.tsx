@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -26,6 +26,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import type { RootStackParamList } from '~/navigation';
 import { ActivityIndicator } from 'react-native-paper';
+import { useGetDataOverView } from '~/hooks/useGetDataOverview';
+import { DashboardItem } from 'components/DashborardItem';
 
 type HomeScreenProps = BottomTabScreenProps<TabParamList, 'Home'>;
 type BookingNavigationProp = StackNavigationProp<RootStackParamList, 'Agendamento'>;
@@ -35,6 +37,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
   const navigation = useNavigation<BookingNavigationProp>();
   const { user } = useAuthStore();
   const { data: bookings, isLoading } = useGetBookings();
+  const { data: dataOverview, isPending: isLoadingDataOverview } = useGetDataOverView();
   const { data: notifications } = useGetNotifications();
   const unreadNotifications: Notification[] =
     notifications?.filter((n: Notification) => !n.read) || [];
@@ -43,7 +46,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
   const handleGoToDetailsPage = (id: string) => {
     navigation.navigate('Agendamento', { id });
   };
-
+  const [bookinksByStatus, setBookingsByStatus] = useState([]);
   const toggleDropdown = () => {
     setDropdownVisible(!dropdownVisible);
   };
@@ -76,6 +79,40 @@ export default function HomeScreen({ route }: HomeScreenProps) {
       setIsRefreshing(false);
     }
   };
+
+  useEffect(() => {
+    if (!dataOverview) return;
+    const formattedData = dataOverview?.totalBookingsByStatus.map(
+      (item: { status: string; _count: { status: number } }, index: number) => {
+        // Definindo as cores para cada status
+        let color;
+        switch (item.status) {
+          case 'pendente':
+            color = '#fbbf24';
+            break;
+          case 'aprovado':
+            color = '#4ade80';
+            break;
+          case 'cancelado':
+            color = '#fb7185'; // Vermelho
+            break;
+          case 'concluido':
+            color = '#38bdf8'; // Azul
+            break;
+          default:
+            color = 'gray'; // Cinza como fallback
+        }
+
+        return {
+          id: index,
+          value: item._count.status,
+          label: item.status.charAt(0).toUpperCase() + item.status.slice(1),
+          color: color,
+        };
+      }
+    );
+    setBookingsByStatus(formattedData);
+  }, [dataOverview]);
 
   const statusCounts = countByStatus(bookings || []);
   const total = Object.values(statusCounts).reduce((sum, count) => sum + count, 0);
@@ -110,7 +147,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
   const renderDot = (color: string) => (
     <View className="mr-2 h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
   );
-
+  console.log(user);
   const renderLegendComponent = () => (
     <View className="flex-row flex-wrap justify-start">
       {pieData.map((item, index) => (
@@ -166,33 +203,57 @@ export default function HomeScreen({ route }: HomeScreenProps) {
             </View>
           </View>
         )}
-        {user?.role === 'ADMIN' || user?.role === 'COORDINATOR' || user?.role === 'ATTADANT' ? (
-          <View className="mx-4 mt-10">
-            <Text
-              style={{ fontFamily: 'Montserrat-Regular' }}
-              className="font-montserrat_medium mb-3 text-xl font-bold text-slate-900">
-              Agendamentos por Status
-            </Text>
-            <View className="overflow-hidden break-normal rounded border border-gray-400 p-3">
-              <View style={{ padding: 20, alignItems: 'center' }}>
-                <PieChart
-                  data={pieData}
-                  donut
-                  showGradient
-                  sectionAutoFocus
-                  radius={90}
-                  innerRadius={60}
-                  centerLabelComponent={() => (
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                      <Text className="text-slate-700">{total}</Text>
-                      <Text className="text-slate-700">Total</Text>
-                    </View>
-                  )}
+        {user?.role === 'ADMIN' || user?.role === 'ATTENDANT' ? (
+          <>
+            <View className="mx-4 mt-10">
+              <View className="flex gap-4">
+                <DashboardItem
+                  text="Total de agendamentos"
+                  icon="calendar-o"
+                  color="#FACC15"
+                  value={dataOverview?.bookings}
+                />
+                <DashboardItem
+                  text="Agendamentos recentes"
+                  icon="calendar"
+                  color="#38BDF8"
+                  value={dataOverview?.recentBookingsCount}
+                />
+                <DashboardItem
+                  text="Usuários cadastrados"
+                  icon="users"
+                  color="#4ADE80"
+                  value={dataOverview?.totalUsers}
                 />
               </View>
-              {renderLegendComponent()}
+              <>
+                <Text
+                  style={{ fontFamily: 'Montserrat-Regular' }}
+                  className="mb-3 mt-10 font-montserrat_medium text-xl font-bold text-slate-900">
+                  Agendamentos por Status
+                </Text>
+                <View className="overflow-hidden break-normal rounded border border-gray-400 p-3">
+                  <View style={{ padding: 20, alignItems: 'center' }}>
+                    <PieChart
+                      data={pieData}
+                      donut
+                      showGradient
+                      sectionAutoFocus
+                      radius={90}
+                      innerRadius={60}
+                      centerLabelComponent={() => (
+                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                          <Text className="text-slate-700">{total}</Text>
+                          <Text className="text-slate-700">Total</Text>
+                        </View>
+                      )}
+                    />
+                  </View>
+                  {renderLegendComponent()}
+                </View>
+              </>
             </View>
-          </View>
+          </>
         ) : (
           <View className=" flex-1   px-2">
             <View className="z-50 flex flex-row justify-end gap-2">
