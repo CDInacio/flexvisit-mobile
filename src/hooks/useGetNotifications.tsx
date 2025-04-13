@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { getNotifications } from '~/api/notifications/notifications';
 import notificationService from '~/services/notificationService';
 import { Notification } from '~/types/notification';
 

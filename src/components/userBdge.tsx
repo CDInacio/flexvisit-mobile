@@ -8,8 +8,8 @@ const translateAccesLevel = (text: string) => {
   switch (text) {
     case 'ADMIN':
       return 'Administrador';
-    case 'USER':
-      return 'Usuário';
+    case 'VISITOR':
+      return 'Visitante';
     case 'ATTENDANT':
       return 'Atendente';
     case 'COORDINATOR':
@@ -27,7 +27,7 @@ export function UserBadge({ userAccesLevel }: StatusBadgeProps) {
           {translateAccesLevel(userAccesLevel)}
         </Text>
       );
-    case 'USER':
+    case 'VISITOR':
       return (
         <Text className=" w-20 rounded-full bg-green-200 px-2 py-1 text-center text-xs font-semibold text-green-800">
           {translateAccesLevel(userAccesLevel)}

@@ -1,4 +1,4 @@
-import { Text, View, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import { Text, View, TouchableOpacity, Alert, Modal, TextInput, Pressable } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { useGetBooking } from '~/hooks/userGetBooking';
 import { useUpdateBooking } from '~/hooks/useUpdateBooking';
@@ -13,7 +13,7 @@ import type { RootStackParamList } from '~/navigation';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Image } from 'react-native';
 import { ActivityIndicator } from 'react-native';
-import { Button, Divider, Menu, PaperProvider } from 'react-native-paper';
+import { PaperProvider } from 'react-native-paper';
 
 type BookingRouteProp = RouteProp<RootStackParamList, 'Agendamento'>;
 
@@ -25,14 +25,10 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
   const formId = booking?.form?.id;
   const { data: form, isLoading: isFormLoading } = useGetForm(formId!);
   const { mutate: updateStatus, isPending: isLoading } = useUpdateBooking();
-  const [statusToUpdate, setStatusToUpdate] = useState<string | null>(null);
-  const [visible, setVisible] = useState(false);
   const [qrModalVisible, setQrModalVisible] = useState(false);
-  const [isObservationModalVisible, setIsObservationModalVisible] = useState(false);
+  const [isObservationModalVisible] = useState(false);
   const [observation, setObservation] = useState('');
-
-  const openMenu = () => setVisible(true);
-  const closeMenu = () => setVisible(false);
+  const [statusModalVisible, setStatusModalVisible] = useState(false);
 
   useEffect(() => {
     if (booking?.data) {
@@ -45,51 +41,39 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
     }
   }, [booking]);
 
-  const openObservationModal = (newStatus: string) => {
-    setStatusToUpdate(newStatus);
-    setIsObservationModalVisible(true);
-  };
-
-  const confirmStatusUpdate = () => {
-    setIsObservationModalVisible(false);
-    if (statusToUpdate) {
-      Alert.alert(
-        'Confirmação',
-        `Tem certeza que deseja alterar o status para "${statusToUpdate}"?`,
-        [
-          { text: 'Cancelar', style: 'cancel' },
-          {
-            text: 'Confirmar',
-            onPress: () => {
-              if (booking && user) {
-                updateStatus(
-                  {
-                    id: booking.id,
-                    status: statusToUpdate,
-                    userId: user.id,
-                    role: user.role,
-                    booking,
-                    observation: observation || booking.observation || '',
-                  },
-                  {
-                    onSuccess: () => {
-                      showToast('success', 'Sucesso!', 'Agendamento atualizado com sucesso');
-                      setObservation(''); // Limpa o campo após atualização
-                    },
-                    onError: () => {
-                      showToast('error', 'Erro!', 'Erro ao atualizar agendamento');
-                    },
-                  }
-                );
-              } else {
-                showToast('error', 'Erro!', 'Erro ao atualizar agendamento');
+  const confirmStatusUpdate = (newStatus: string) => {
+    setStatusModalVisible(false);
+    Alert.alert('Confirmação', `Deseja alterar o status para "${newStatus}"?`, [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Confirmar',
+        onPress: () => {
+          if (booking && user) {
+            updateStatus(
+              {
+                id: booking.id,
+                status: newStatus,
+                userId: booking.user?.id,
+                role: booking.user?.role,
+                booking,
+                observation: observation || booking.observation || '',
+              },
+              {
+                onSuccess: () => {
+                  showToast('success', 'Sucesso!', 'Agendamento atualizado com sucesso');
+                  setObservation('');
+                },
+                onError: () => {
+                  showToast('error', 'Erro!', 'Erro ao atualizar agendamento');
+                },
               }
-            },
-          },
-        ],
-        { cancelable: true }
-      );
-    }
+            );
+          } else {
+            showToast('error', 'Erro!', 'Erro ao atualizar agendamento');
+          }
+        },
+      },
+    ]);
   };
 
   if (isBookingLoading || isFormLoading) {
@@ -103,7 +87,7 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
   return (
     <PaperProvider>
       <ScrollView className="my-4 flex-1 bg-gray-100 px-4">
-        <View className="rounded-lg bg-gray-800 p-4 shadow-md">
+        <View className="rounded-lg bg-[#383838] p-4 shadow-md">
           <Text className="mb-3 text-xl font-bold text-gray-100">{booking?.form?.form_name}</Text>
           <Text className="text-sm text-gray-300">{booking?.form?.form_description}</Text>
         </View>
@@ -135,7 +119,6 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
           </Text>
         </View>
 
-        {/* QR Code */}
         {booking.qrCode && (
           <TouchableOpacity onPress={() => setQrModalVisible(true)} className="mb-4 items-center">
             <Text className="mb-2 text-lg font-semibold text-gray-700">QR Code do Agendamento</Text>
@@ -143,7 +126,6 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
           </TouchableOpacity>
         )}
 
-        {/* Modal para Exibir o QR Code Ampliado */}
         <Modal visible={qrModalVisible} transparent={true} animationType="fade">
           <View className="flex-1 items-center justify-center bg-black/70">
             <TouchableOpacity
@@ -172,43 +154,44 @@ export default function Booking({ route }: { route: BookingRouteProp }) {
                 onChangeText={setObservation}
                 multiline
               />
-              <View className="flex-row justify-end">
-                <Button onPress={() => setIsObservationModalVisible(false)}>Cancelar</Button>
-                <Button onPress={confirmStatusUpdate} mode="contained" className="ml-2">
-                  Confirmar
-                </Button>
-              </View>
             </View>
           </View>
         </Modal>
 
         {user?.role === 'ADMIN' || user?.role === 'ATTENDANT' ? (
-          <View className="relative mt-4 flex-row justify-center">
-            <Menu
-              visible={visible}
-              onDismiss={closeMenu}
-              anchor={
-                <Button
-                  mode="contained"
-                  onPress={openMenu}
-                  disabled={isLoading}
-                  style={{ backgroundColor: '#1f2937' }}>
-                  {isLoading ? (
-                    <ActivityIndicator color="#ffff" />
-                  ) : (
-                    <Text className="font-semibold text-white ">Alterar Status</Text>
-                  )}
-                </Button>
-              }>
-              <Menu.Item onPress={() => openObservationModal('aprovado')} title="Aprovar" />
-              <Divider />
-              <Menu.Item onPress={() => openObservationModal('concluido')} title="Concluir" />
-              <Divider />
-              <Menu.Item onPress={() => openObservationModal('cancelado')} title="Cancelar" />
-            </Menu>
-          </View>
+          <TouchableOpacity
+            className="rounded-lg bg-[#383838] px-6 py-3 "
+            onPress={() => setStatusModalVisible(true)}>
+            {isLoading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text className="text-center text-lg font-bold text-white">Editar</Text>
+            )}
+          </TouchableOpacity>
         ) : null}
-
+        <Modal visible={statusModalVisible} transparent={true} animationType="slide">
+          <View className="flex-1 items-center justify-center bg-black/50">
+            <View className="w-4/5 rounded-lg bg-white p-6">
+              <View>
+                <Text className="mb-4 text-center  text-lg font-semibold text-gray-700">
+                  Selecione um novo status:
+                </Text>
+                <Pressable onPress={() => confirmStatusUpdate('aprovado')}>
+                  <Text className="my-4 text-center text-gray-800">Aprovar</Text>
+                </Pressable>
+                <Pressable onPress={() => confirmStatusUpdate('concluido')}>
+                  <Text className="my-4 text-center text-gray-800">Concluir</Text>
+                </Pressable>
+                <Pressable onPress={() => confirmStatusUpdate('cancelado')}>
+                  <Text className="my-4 text-center text-gray-800">Cancelar</Text>
+                </Pressable>
+                <Pressable onPress={() => setStatusModalVisible(false)}>
+                  <Text className="my-4 text-center text-gray-800">Fechar</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
         <Toast />
       </ScrollView>
     </PaperProvider>

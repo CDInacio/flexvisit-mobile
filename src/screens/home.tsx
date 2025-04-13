@@ -37,7 +37,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
   const navigation = useNavigation<BookingNavigationProp>();
   const { user } = useAuthStore();
   const { data: bookings, isLoading } = useGetBookings();
-  const { data: dataOverview, isPending: isLoadingDataOverview } = useGetDataOverView();
+  const { data: dataOverview } = useGetDataOverView();
   const { data: notifications } = useGetNotifications();
   const unreadNotifications: Notification[] =
     notifications?.filter((n: Notification) => !n.read) || [];
@@ -171,12 +171,12 @@ export default function HomeScreen({ route }: HomeScreenProps) {
   return (
     <TouchableWithoutFeedback onPress={closeDropdown}>
       <SafeAreaView className="mt-4 flex-1">
-        {user?.role !== 'USER' && (
+        {user?.role !== 'VISITOR' && (
           <View className="mt-4 flex-row items-center justify-between  gap-3  px-5">
             <TouchableOpacity>
               <Image source={{ uri: user?.profileImage }} className="h-8 w-8 rounded-full" />
             </TouchableOpacity>
-            <Text className="font-bold">{route.name}</Text>
+            <Text className="font-extrabold">{route.name}</Text>
             <View className="flex-row items-center gap-3 px-5">
               <TouchableOpacity onPress={toggleDropdown}>
                 <FontAwesome name="bell-o" size={20} color="black" />
@@ -190,7 +190,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
               </TouchableOpacity>
 
               {dropdownVisible && (
-                <View className="absolute right-4  top-7  mt-2 w-60 rounded bg-white shadow-lg">
+                <View className="absolute right-4 top-7  z-50  mt-2 max-h-96 w-60 rounded bg-white shadow-lg">
                   <Text className="px-4 py-2 font-bold text-gray-700">Notificações</Text>
                   <FlatList
                     data={unreadNotifications}
@@ -204,7 +204,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
           </View>
         )}
         {user?.role === 'ADMIN' || user?.role === 'ATTENDANT' ? (
-          <>
+          <ScrollView className="mb-5">
             <View className="mx-4 mt-10">
               <View className="flex gap-4">
                 <DashboardItem
@@ -253,7 +253,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
                 </View>
               </>
             </View>
-          </>
+          </ScrollView>
         ) : (
           <View className=" flex-1   px-2">
             <View className="z-50 flex flex-row justify-end gap-2">
@@ -263,7 +263,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
                     <TouchableOpacity onPress={toggleDropdown}>
                       <FontAwesome name="bell-o" size={20} color="black" />
                       {unreadNotifications.length > 0 && (
-                        <View className="right-0-top-1.5 absolute h-5 w-5 items-center justify-center rounded-full bg-red-600">
+                        <View className="absolute -top-1.5 right-0 h-5 w-5 items-center justify-center rounded-full bg-red-600">
                           <Text className="text-xs font-bold text-white">
                             {unreadNotifications.length}
                           </Text>
@@ -272,7 +272,7 @@ export default function HomeScreen({ route }: HomeScreenProps) {
                     </TouchableOpacity>
 
                     {dropdownVisible && (
-                      <View className="absolute left-4 top-5  mt-2 w-60 rounded bg-white shadow-lg">
+                      <View className="absolute left-4 top-5   z-50  mt-2 max-h-96 w-60 rounded bg-white shadow-lg">
                         <Text className="px-4 py-2 font-bold text-gray-700">Notificações</Text>
                         <FlatList
                           data={unreadNotifications}
@@ -296,8 +296,8 @@ export default function HomeScreen({ route }: HomeScreenProps) {
               </Text>
               <Text className="text-gray-600">{user?.email}</Text>
             </View>
-            <Text className="mt-10 px-2 py-6 text-start text-lg font-semibold text-slate-600">
-              Meus agendamentos <Text className=" text-slate-500">{userBookings?.length}</Text>
+            <Text className="mt-10 px-2 py-6 text-start text-lg font-semibold ">
+              Meus agendamentos <Text className=" text-gray-600">{userBookings?.length}</Text>
             </Text>
 
             {isLoading ? (

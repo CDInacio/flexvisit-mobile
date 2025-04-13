@@ -10,7 +10,7 @@ import Toast from 'react-native-toast-message';
 import { showToast } from '~/utils/toast';
 
 export default function LoginScreen() {
-  const { user } = useAuthStore();
+  // const { user } = useAuthStore();
   const { mutate: signin, isPending: isLoading } = useSignin();
   const navigation = useNavigation<any>();
   const [form, setForm] = useState({ email: '', password: '' });

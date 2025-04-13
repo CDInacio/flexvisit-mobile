@@ -34,9 +34,20 @@ const getTabTitle = (tabName: string, role?: string): string => {
 
 export default function TabNavigator() {
   const { user } = useAuthStore();
-  console.log(user);
+
   return (
-    <Tab.Navigator initialRouteName="Home">
+    <Tab.Navigator
+      initialRouteName="Home"
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: '#ffffff',
+          borderTopWidth: 0,
+          elevation: 10,
+          shadowOpacity: 0.1,
+        },
+        tabBarActiveTintColor: '#1f2937',
+        tabBarInactiveTintColor: '#9ca3af',
+      }}>
       {user?.role !== 'COORDINATOR' && (
         <Tab.Screen
           name="Home"
@@ -49,7 +60,7 @@ export default function TabNavigator() {
           }}
         />
       )}
-      {user?.role === 'USER' && (
+      {user?.role === 'VISITOR' && (
         <Tab.Screen
           name="Novo agendamento"
           component={NewBooking}
@@ -60,7 +71,7 @@ export default function TabNavigator() {
           }}
         />
       )}
-      {user?.role !== 'USER' && (
+      {user?.role !== 'VISITOR' && (
         <Tab.Screen
           name="Agendamentos"
           component={Bookings}
@@ -71,7 +82,7 @@ export default function TabNavigator() {
           }}
         />
       )}
-      {user?.role !== 'USER' &&
+      {user?.role !== 'VISITOR' &&
         (user?.role !== 'ATTENDANT' ? (
           <Tab.Screen
             name="QRCode"

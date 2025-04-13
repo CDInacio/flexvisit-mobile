@@ -316,7 +316,7 @@ export default function NewBooking() {
         })}
 
         <Pressable onPress={handleBooking} style={({ pressed }) => [{ backgroundColor: '' }]}>
-          <Text className="rounded bg-gray-800 px-5 py-3 text-center text-xl font-bold text-white">
+          <Text className="rounded bg-[#383838] px-5 py-3 text-center text-xl font-bold text-white">
             {isLoadingCreateBooking ? <ActivityIndicator size="small" color="#ffff" /> : 'Agendar'}
           </Text>
         </Pressable>

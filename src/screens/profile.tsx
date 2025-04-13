@@ -90,7 +90,7 @@ export default function Profile({ route }: { route: { name: string } }) {
   return (
     <SafeAreaView className="mt-4 flex-1 px-5">
       <View className="mt-4 flex items-center">
-        <Text className="font-bold">{route.name}</Text>
+        <Text className="font-extrabold">{route.name}</Text>
       </View>
       <KeyboardAvoidingView
         behavior="padding"
@@ -197,7 +197,7 @@ export default function Profile({ route }: { route: { name: string } }) {
                 </View>
               ) : (
                 <TouchableOpacity
-                  className="rounded-lg bg-gray-800 px-6 py-3 "
+                  className="rounded-lg bg-[#383838] px-6 py-3 "
                   onPress={() => setIsEditing(true)}>
                   <Text className="text-center text-lg font-bold text-white">Editar</Text>
                 </TouchableOpacity>

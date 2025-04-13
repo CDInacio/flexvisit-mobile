@@ -2,7 +2,13 @@ import { forwardRef, createContext, useContext } from 'react';
 import * as Slot from '@rn-primitives/slot';
 import { SlottableTextProps, TextRef } from '@rn-primitives/types';
 import { Text as RNText } from 'react-native';
-import { cn } from '~/lib/utils';
+
+import { twMerge } from 'tailwind-merge';
+import clsx, { type ClassValue } from 'clsx';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 const TextClassContext = createContext<string | undefined>(undefined);
 

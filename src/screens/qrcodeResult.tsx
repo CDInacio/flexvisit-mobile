@@ -14,7 +14,7 @@ export default function QRCodeResult() {
       <Text className="mb-6 text-center text-base text-gray-800">{data}</Text>
       <TouchableOpacity
         onPress={() => navigation.navigate('QRCode')}
-        className="rounded-lg bg-blue-600 px-6 py-3">
+        className="rounded-lg bg-[#383838] px-6 py-3">
         <Text className="text-lg font-semibold text-white">Escanear Novamente</Text>
       </TouchableOpacity>
     </View>

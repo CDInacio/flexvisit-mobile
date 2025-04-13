@@ -76,7 +76,7 @@ export default function Bookings({ route }: { route: { name: string } }) {
   return (
     <SafeAreaView className="mt-4 flex-1 ">
       <View className="mt-4 flex items-center">
-        <Text className="font-bold">{route.name}</Text>
+        <Text className="font-extrabold">{route.name}</Text>
       </View>
       <View className="">
         <RNPickerSelect

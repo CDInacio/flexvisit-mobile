@@ -3,7 +3,13 @@ import { Platform, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-na
 import { TextClassContext } from './Text';
 import { Check, ChevronDown, ChevronRight, ChevronUp } from 'lucide-react-native';
 import { ComponentPropsWithoutRef, ElementRef, forwardRef } from 'react';
-import { cn } from '~/lib/utils';
+import type { ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import clsx from 'clsx';
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -83,10 +89,10 @@ const DropdownMenuContent = forwardRef<
       <DropdownMenuPrimitive.Overlay
         style={
           overlayStyle
-            ? StyleSheet.flatten([
+            ? (StyleSheet.flatten([
                 Platform.OS !== 'web' ? StyleSheet.absoluteFill : undefined,
                 overlayStyle,
-              ] as unknown as ViewStyle)
+              ]) as ViewStyle)
             : Platform.OS !== 'web'
               ? StyleSheet.absoluteFill
               : undefined
